@@ -11,8 +11,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.Scanner;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Hello world!
@@ -23,8 +25,12 @@ public class App
 
     private static void sendBinaryFile(Socket socket, String path){
 
+
         if(path.endsWith("/")){
             path = path + "index.html";
+        }
+        if(path.equals("/classe.json")){
+            creaClasse();
         }
 
         try{
@@ -36,7 +42,7 @@ public class App
 
             out.writeBytes("HTTP/1.1 200 OK\n" );
             out.writeBytes("Content-Length: " + file.length()+ "\n");
-            out.writeBytes("Server: Java HTTP Server from Taiti: 1.0\n");
+            out.writeBytes("Server: Java HTTP Server from Skorzi: 1.0\n");
             out.writeBytes("Date: " + new Date()+ "\n");
             out.writeBytes("Content-Type: " + getContentType(path) + "\n");
             out.writeBytes("\n");
@@ -86,11 +92,37 @@ public class App
                 case "js":    
                     type = "application/" + type;
                     break;
+                case "json":
+                    type = "application/" + type;
+                    break;
             }
         }catch(IndexOutOfBoundsException inxU){
             System.out.println(type);
         }
         return type;
+    }
+
+    public static void creaClasse(){
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        Alunno a1 = new Alunno("Alessandro", "Skorzi", new Date(2005,11,12));
+        Alunno a2 = new Alunno("alessio", "aldinucci", new Date(2004,1,3));
+        Alunno a3 = new Alunno("sing", "sorang", new Date(2002,10,10));
+        Alunno a4 = new Alunno("spugni", "meucci", new Date(2001, 4,5));
+
+        ArrayList<Alunno> alunni = new ArrayList<>();
+        alunni.add(a1);
+        alunni.add(a2);
+        alunni.add(a3);
+        alunni.add(a4);
+
+        Classe c = new Classe(1, "5DIA", "05TC", alunni);
+        try {
+            objectMapper.writeValue(new File("root/classe.json"), c);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 
     public static void main( String[] args )
